@@ -52,7 +52,9 @@
   Do not use formula interface for a data with large number of attributes; the overhead from handling the formula may be significant.
 }
 
-%\references{}
+\references{
+Ozuysal M, Calonder M, Lepetit V & Fua P. (2010), \emph{Fast Keypoint Recognition using Random Ferns}, IEEE Transactions on Pattern Analysis and Machine Intelligence 32(3), 448-461.
+}
 
 \author{Miron B. Kursa \email{M.Kursa@icm.edu.pl}}
 
