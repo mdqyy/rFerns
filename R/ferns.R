@@ -72,7 +72,7 @@ rFerns.default<-function(x,y,depth=5,ferns=1000,importance=FALSE,reportErrorEver
 	ans$parameters<-c(classes=length(levels(y)),depth=depth,ferns=ferns)
 	
 	if(!is.null(ans$imp)){
-		ans$imp<-data.frame(matrix(ans$imp,ncol=2))
+		ans$importance<-data.frame(matrix(ans$imp,ncol=2))
 		names(ans$imp)<-c("MeanScoreLoss","SdScoreLoss")
 		if(!is.null(names(x))) rownames(ans$imp)<-names(x)
 	}
