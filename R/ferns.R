@@ -65,19 +65,20 @@ rFerns.default<-function(x,y,depth=5,ferns=1000,importance=FALSE,reportErrorEver
 		
 	ans$classLabels<-levels(y)
 	if(saveForest){
-		lapply(x,levels)->ans$predictorLevels
-		sapply(x,is.integer)->ans$integerPredictors
-		sapply(x,is.ordered)->ans$orderedFactorPredictors
+		ans$isStruct<-list()
+		lapply(x,levels)->ans$isStruct$predictorLevels
+		sapply(x,is.integer)->ans$isStruct$integerPredictors
+		sapply(x,is.ordered)->ans$isStruct$orderedFactorPredictors
 	}
 		
 	table(Predicted=ans$oobPreds,True=y)->ans$oobConfusionMatrix
 	if(is.null(ans$oobErr)) ans$oobErr<-mean(ans$oobPreds!=y,na.rm=TRUE)
 	ans$parameters<-c(classes=length(levels(y)),depth=depth,ferns=ferns)
 	
-	if(!is.null(ans$imp)){
-		ans$importance<-data.frame(matrix(ans$imp,ncol=2))
-		names(ans$imp)<-c("MeanScoreLoss","SdScoreLoss")
-		if(!is.null(names(x))) rownames(ans$imp)<-names(x)
+	if(!is.null(ans$importance)){
+		ans$importance<-data.frame(matrix(ans$importance,ncol=2))
+		names(ans$importance)<-c("MeanScoreLoss","SdScoreLoss")
+		if(!is.null(names(x))) rownames(ans$importance)<-names(x)
 	}
 	
 	#Calculate time taken by the calculation
@@ -92,9 +93,16 @@ predict.rFerns<-function(object,x,scores=FALSE,...){
 	#Validate input
 	if(!("rFerns"%in%class(object))) stop("object must be of a rFerns class")
 	if(is.null(object$model)) stop("This fern forest object does not contain the model.")
-	if(is.null(object$predictorLevels)) stop("Fern forest object corrupted.")
-	
-	object$predictorLevels->pL
+
+	iss<-object$isStruct
+	if(is.null(iss)){
+		#object is a v0.1 rFerns
+		object$isStruct$predictorLevels<-object$predictorLevels
+		object$isStruct$integerPredictors<-
+			object$isStruct$orderedFactorPredictors<-
+				rep(FALSE,length(iss$predictorLevels));
+	}
+	iss$predictorLevels->pL
 	pN<-names(pL)
 	
 	if(!identical(names(x),pN)){
@@ -107,13 +115,13 @@ predict.rFerns<-function(object,x,scores=FALSE,...){
 	
 	for(e in 1:ncol(x))
 		if(is.null(pL[[e]])){
-			if(object$integerPredictors[e]){
+			if(iss$integerPredictors[e]){
 				if(!("integer"%in%class(x[,e]))) stop(sprintf("Attribute %s should be integer.",pN[e]))
 			}else{
 				if(!("numeric"%in%class(x[,e]))) stop(sprintf("Attribute %s should be numeric.",pN[e]))
 			}
 		}else{
-			if(object$orderedFactorPredictors[e]){
+			if(iss$orderedFactorPredictors[e]){
 				#Check if given attribute is also ordered
 				if(!is.ordered(x[,e])) stop(sprintf("Attribute %s should be an ordered factor.",pN[e]))
 				#Convert levels

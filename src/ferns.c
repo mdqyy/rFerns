@@ -191,7 +191,7 @@ SEXP random_ferns(SEXP sAttributes,SEXP sDecision,SEXP sD,SEXP sNumFerns,SEXP sC
 	SET_STRING_ELT(sAnsNames,0,mkChar("model"));
 	SET_STRING_ELT(sAnsNames,1,mkChar("oobScores"));
 	SET_STRING_ELT(sAnsNames,2,mkChar("oobErr"));
-    SET_STRING_ELT(sAnsNames,3,mkChar("imp"));
+    SET_STRING_ELT(sAnsNames,3,mkChar("importance"));
     SET_STRING_ELT(sAnsNames,4,mkChar("oobPreds"));
 	setAttrib(sAns,R_NamesSymbol,sAnsNames);
 	UNPROTECT(2);
