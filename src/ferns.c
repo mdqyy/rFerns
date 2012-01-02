@@ -101,7 +101,7 @@ SEXP random_ferns(SEXP sAttributes,SEXP sDecision,SEXP sD,SEXP sNumFerns,SEXP sC
 		for(uint e=0;e<(Q.D)*(Q.numFerns);e++){
 			if(X[ferns.splitAtts[e]].numCat!=0){
 				INTEGER(sfThreInt)[e]=ferns.thresholds[e].selection;
-				REAL(sfThreReal)[e]=NaN;
+				REAL(sfThreReal)[e]=NAN;
 			}else{
 				INTEGER(sfThreInt)[e]=-1;
 				REAL(sfThreReal)[e]=ferns.thresholds[e].value;
