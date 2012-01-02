@@ -39,10 +39,10 @@ rFerns.default<-function(x,y,depth=5,ferns=1000,importance=FALSE,reportErrorEver
 	if(!is.data.frame(x)) stop("x must be a data frame.")
 	if(is.na(names(x)) || any(duplicated(names(x)))) stop("Attribute names must be unique.")
 	if(!is.factor(y) || !is.null(dim(y))) stop("y must be a factor vector.")
-	if(!all(sapply(x,class)%in%c("numeric","factor"))) stop("All attributes must be either numeric or factor.")
+	if(!all(sapply(x,function(j) any(class(j)%in%c("numeric","integer","factor","ordered"))))) stop("All attributes must be either numeric or factor.")
 	if(length(y)!=nrow(x)) stop("Attributes' and decision's sizes must match.")
-	if(any((sapply(x,function(a) length(levels(a)))>64)->bad)){
-	 stop(sprintf("Attribute(s) %s is/are factor(s) with above 64 levels.",paste(names(x)[bad],collapse=", ")))
+	if(any((sapply(x,function(a) ((length(levels(a))>30)&&(!is.ordered(a)))))->bad)){
+	 stop(sprintf("Attribute(s) %s is/are unordered factor(s) with above 30 levels. Split or convert to ordered.",paste(names(x)[bad],collapse=", ")))
 	}
 	y<-factor(y)
 	
@@ -64,8 +64,11 @@ rFerns.default<-function(x,y,depth=5,ferns=1000,importance=FALSE,reportErrorEver
 					labels=levels(y))
 		
 	ans$classLabels<-levels(y)
-	if(saveForest)
+	if(saveForest){
 		lapply(x,levels)->ans$predictorLevels
+		sapply(x,is.integer)->ans$integerPredictors
+		sapply(x,is.ordered)->ans$orderedFactorPredictors
+	}
 		
 	table(Predicted=ans$oobPreds,True=y)->ans$oobConfusionMatrix
 	if(is.null(ans$oobErr)) ans$oobErr<-mean(ans$oobPreds!=y,na.rm=TRUE)
@@ -104,13 +107,25 @@ predict.rFerns<-function(object,x,scores=FALSE,...){
 	
 	for(e in 1:ncol(x))
 		if(is.null(pL[[e]])){
-			if(!is.numeric(x[,e])) stop(sprintf("%s should be numeric.",pN[e]))
+			if(object$integerPredictors[e]){
+				if(!("integer"%in%class(x[,e]))) stop(sprintf("Attribute %s should be integer.",pN[e]))
+			}else{
+				if(!("numeric"%in%class(x[,e]))) stop(sprintf("Attribute %s should be numeric.",pN[e]))
+			}
 		}else{
-			#Convert factor levels to be compatible with training
-			if(!identical(levels(x[,e]),pL[[e]]))
-				x[,e]<-factor(x[,e],levels=pL[[e]])
-			#In case of mismatch, NAs will appear -- catch 'em and fail
-			if(any(is.na(x[,e]))) stop(sprintf("Levels of %s does not match those from training (%s).",pN[e],paste(pL[[e]],collapse=", ")))
+			if(object$orderedFactorPredictors[e]){
+				#Check if given attribute is also ordered
+				if(!is.ordered(x[,e])) stop(sprintf("Attribute %s should be an ordered factor.",pN[e]))
+				#Convert levels
+				if(!identical(levels(x[,e]),pL[[e]]))
+					stop(sprintf("Levels of %s does not match those from training (%s).",pN[e],paste(pL[[e]],collapse=", ")))
+			}else{
+				#Convert factor levels to be compatible with training
+				if(!identical(levels(x[,e]),pL[[e]]))
+					x[,e]<-factor(x[,e],levels=pL[[e]])
+				#In case of mismatch, NAs will appear -- catch 'em and fail
+				if(any(is.na(x[,e]))) stop(sprintf("Levels of %s does not match those from training (%s).",pN[e],paste(pL[[e]],collapse=", ")))
+			}
 		}
 	
 	#Prediction itself
