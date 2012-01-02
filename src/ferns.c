@@ -1,6 +1,6 @@
 /*   R frontend to C code
 
-     Copyright 2011 Miron B. Kursa
+     Copyright 2011,2012 Miron B. Kursa
 
      This file is part of rFerns R package.
  
