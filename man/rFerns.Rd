@@ -41,7 +41,7 @@
   \item{timeTaken}{Time used to train the model (smaller than wall time because data preparation and model final touches are excluded; however it includes the time needed to compute importance, if it applies). An object of \code{difftime} class.}
   \item{parameters}{Numerical vector of three elements: \code{classes}, \code{depth} and \code{ferns}, containing respectively the number of classes in decision and copies of \code{depth} and \code{ferns} parameters.}
   \item{classLabels}{Copy of \code{levels(Y)} after purging unused levels.}
-  \item{predictorLevels}{Copy of train set structure; a list, containing \code{NULL}s for numeric attributes and \code{levels} values for categorical attributes.}
+  \item{isStruct}{Copy of the train set structure, required internally by predict method.}
 }
 
 \note{
