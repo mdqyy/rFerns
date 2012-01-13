@@ -47,16 +47,20 @@ void makeFern(DATASET_,FERN_,uint *restrict bag,score_t  *restrict oobPrMatrix,u
 		}		
 	}
 	//Count classes' distribution in each leaf
+        uint apriori[numC];
+        for(uint e=0;e<numC;e++) apriori[e]=1; //Dirichlet prior
 	for(uint e=0;e<twoToD*numC;e++) counts[e]=1; //Dirichlet prior
 	for(uint e=0;e<twoToD;e++) objInLeaf[e]=numC; //An effect of Dirichlet prior
 	for(uint e=0;e<N;e++){
 		counts[Y[e]+idx[e]*numC]+=bag[e];
 		objInLeaf[idx[e]]+=bag[e];
+                apriori[Y[e]]+=bag[e];
 	}
-	 
+	uint aprioriAll=0;
+        for(uint e=0;e<numC;e++) aprioriAll+=apriori[e];
 	for(uint e=0;e<twoToD;e++)
 		for(uint ee=0;ee<numC;ee++)
-			scores[ee+e*numC]=log(((double)counts[ee+e*numC])/((double)objInLeaf[e])*((double)numC));
+			scores[ee+e*numC]=log(((double)counts[ee+e*numC])/((double)objInLeaf[e])*((double)numC)/((double)apriori[ee])*((double)aprioriAll));
 	
 	for(uint e=0;e<N;e++)
 		for(uint ee=0;ee<numC;ee++)
