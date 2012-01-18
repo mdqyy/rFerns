@@ -9,7 +9,7 @@
  You should have received a copy of the GNU General Public License along with rFerns. If not, see http://www.gnu.org/licenses/.
 */
 
-void makeFern(DATASET_,FERN_,uint *restrict bag,score_t  *restrict oobPrMatrix,uint  *restrict idx,SIMP_,R_){
+void makeFern(DATASET_,FERN_,uint *restrict bag,score_t *restrict oobPrMatrix,uint *restrict idx,SIMP_,R_){
 	uint counts[twoToD*numC];
 	uint objInLeaf[twoToD];
 	for(uint e=0;e<N;e++) idx[e]=0;
@@ -29,7 +29,7 @@ void makeFern(DATASET_,FERN_,uint *restrict bag,score_t  *restrict oobPrMatrix,u
 			}
 			case -1:{
 				//Make integer split
-				sint   *restrict x=(sint*)(X[E].x);
+				sint  *restrict x=(sint*)(X[E].x);
 				sint threshold=x[RINDEX(N)];
 				for(uint ee=0;ee<N;ee++)
 					idx[ee]+=(1<<e)*(x[ee]<threshold);
@@ -38,7 +38,7 @@ void makeFern(DATASET_,FERN_,uint *restrict bag,score_t  *restrict oobPrMatrix,u
 			}
 			default:{
 				//Make categorical split
-				uint   *restrict x=(uint*)(X[E].x);
+				uint  *restrict x=(uint*)(X[E].x);
 				mask mask=RMASK(X[E].numCat);
 				for(uint ee=0;ee<N;ee++)
 					idx[ee]+=(1<<e)*((mask&(1<<(x[ee])))>0);
@@ -75,7 +75,7 @@ void predictFernAdd(PREDSET_,FERN_,double *restrict ans,uint *restrict idx,SIMP_
 		switch(X[E].numCat){
 			case 0:{
 				//Make numerical split
-				double  *restrict x=(double*)(X[E].x);
+				double *restrict x=(double*)(X[E].x);
 				double threshold=thresholds[e].value;
 				for(uint ee=0;ee<N;ee++)
 					idx[ee]+=(1<<e)*(x[ee]<threshold);
@@ -83,7 +83,7 @@ void predictFernAdd(PREDSET_,FERN_,double *restrict ans,uint *restrict idx,SIMP_
 			}
 			case -1:{
 				//Make integer split
-				sint  *restrict x=(sint*)(X[E].x);
+				sint *restrict x=(sint*)(X[E].x);
 				sint threshold=thresholds[e].intValue;
 				for(uint ee=0;ee<N;ee++)
 					idx[ee]+=(1<<e)*(x[ee]<threshold);
@@ -91,7 +91,7 @@ void predictFernAdd(PREDSET_,FERN_,double *restrict ans,uint *restrict idx,SIMP_
 			}
 			default:{
 				//Make categorical split
-				uint  *restrict x=(uint*)(X[E].x);
+				uint *restrict x=(uint*)(X[E].x);
 				mask mask=thresholds[e].selection;
 				for(uint ee=0;ee<N;ee++)
 					idx[ee]+=(1<<e)*((mask&(1<<(x[ee])))>0);
